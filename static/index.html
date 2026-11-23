@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Dashboard</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: #17243a;
+      background: #eef3f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 48px 20px;
+      background:
+        radial-gradient(ellipse at 15% 5%, #dceaff 0, transparent 36%),
+        radial-gradient(ellipse at 90% 80%, #d8f1ed 0, transparent 32%),
+        #eef3f9;
+    }
+
+    .dashboard {
+      width: min(100%, 760px);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 15px;
+      background: #173d69;
+      color: white;
+      font-size: 25px;
+      box-shadow: 0 8px 20px #173d6930;
+    }
+
+    .brand-name {
+      margin: 0;
+      color: #173d69;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand-caption {
+      margin: 4px 0 0;
+      color: #718096;
+      font-size: 13px;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid #ffffffc9;
+      border-radius: 28px;
+      background: #ffffffd9;
+      box-shadow: 0 24px 70px #253d5b18;
+      backdrop-filter: blur(14px);
+    }
+
+    .panel-header {
+      padding: 34px 38px 28px;
+      background: linear-gradient(120deg, #173d69, #276b91);
+      color: white;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #c1d8e8;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 38px);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: #e0edf5;
+      font-size: 15px;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .search-form input {
+      min-width: 0;
+      flex: 1;
+      padding: 14px 16px;
+      border: 1px solid #ffffff75;
+      border-radius: 12px;
+      outline: none;
+      background: #ffffff;
+      color: #17243a;
+      font: inherit;
+      transition: box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .search-form input:focus {
+      border-color: #9bd5ec;
+      box-shadow: 0 0 0 4px #b8e7f255;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:focus-visible {
+      outline: 3px solid #82d0eb;
+      outline-offset: 3px;
+    }
+
+    .search-button {
+      padding: 0 20px;
+      background: #73d5c3;
+      color: #103e49;
+    }
+
+    .search-button:hover {
+      background: #8be1d1;
+    }
+
+    .content {
+      padding: 28px 38px 36px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 18px;
+    }
+
+    .unit-button {
+      padding: 9px 14px;
+      border: 1px solid #d9e4ef;
+      background: white;
+      color: #315473;
+      font-size: 13px;
+    }
+
+    .unit-button:hover {
+      background: #f3f8fc;
+    }
+
+    #result {
+      min-height: 180px;
+    }
+
+    .empty-state {
+      display: grid;
+      min-height: 180px;
+      place-items: center;
+      padding: 24px;
+      border: 1px dashed #cbd8e6;
+      border-radius: 18px;
+      color: #718096;
+      text-align: center;
+    }
+
+    .empty-icon {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 38px;
+    }
+
+    .weather-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .weather-heading h2 {
+      margin: 0;
+      color: #173d69;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .weather-heading p {
+      margin: 6px 0 0;
+      color: #718096;
+      font-size: 13px;
+    }
+
+    .current-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px;
+      border-radius: 20px;
+      background: linear-gradient(120deg, #eaf5ff, #e9f7f4);
+    }
+
+    .current-label {
+      margin: 0 0 8px;
+      color: #60758c;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .current-temperature {
+      margin: 0;
+      color: #173d69;
+      font-size: clamp(42px, 8vw, 62px);
+      font-weight: 750;
+      letter-spacing: -0.06em;
+    }
+
+    .weather-icon {
+      font-size: 56px;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .detail-card {
+      padding: 16px;
+      border: 1px solid #e7edf4;
+      border-radius: 16px;
+      background: white;
+    }
+
+    .detail-label {
+      margin: 0 0 7px;
+      color: #718096;
+      font-size: 12px;
+    }
+
+    .detail-value {
+      margin: 0;
+      color: #243b53;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .forecast-title {
+      margin: 28px 0 14px;
+      color: #173d69;
+      font-size: 16px;
+    }
+
+    .forecast-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .forecast-day {
+      padding: 15px 10px;
+      border: 1px solid #e7edf4;
+      border-radius: 15px;
+      background: white;
+      text-align: center;
+    }
+
+    .forecast-date {
+      margin: 0 0 10px;
+      color: #718096;
+      font-size: 12px;
+    }
+
+    .forecast-icon {
+      margin-bottom: 9px;
+      font-size: 22px;
+    }
+
+    .forecast-high {
+      margin: 0;
+      color: #243b53;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .forecast-low {
+      margin: 5px 0 0;
+      color: #8795a6;
+      font-size: 12px;
+    }
+
+    .message {
+      padding: 22px;
+      border-radius: 16px;
+      background: #f5f8fb;
+      color: #60758c;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 24px 12px;
+      }
+
+      .panel {
+        border-radius: 22px;
+      }
+
+      .panel-header,
+      .content {
+        padding-right: 20px;
+        padding-left: 20px;
+      }
+
+      .search-form {
+        flex-direction: column;
+      }
+
+      .search-button {
+        min-height: 48px;
+      }
+
+      .forecast-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .forecast-day:last-child {
+        grid-column: span 2;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="dashboard">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">☼</div>
+      <div>
+        <p class="brand-name">Atmos</p>
+        <p class="brand-caption">Your personal weather dashboard</p>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Local forecast</p>
+        <h1>Weather, at a glance.</h1>
+        <p class="subtitle">Search any city to see current conditions and the five-day outlook.</p>
+
+        <form class="search-form" onsubmit="event.preventDefault(); searchWeather();">
+          <input
+            id="city"
+            type="search"
+            list="citySuggestions"
+            placeholder="Enter a city, like London"
+            aria-label="City name"
+          >
+
+<datalist id="citySuggestions">
+  <option value="Addis Ababa, Ethiopia">
+  <option value="Adama, Ethiopia">
+  <option value="Bahir Dar, Ethiopia">
+  <option value="Dire Dawa, Ethiopia">
+  <option value="Gondar, Ethiopia">
+  <option value="Hawassa, Ethiopia">
+  <option value="Harar, Ethiopia">
+  <option value="Jimma, Ethiopia">
+  <option value="Jijiga, Ethiopia">
+  <option value="Mekelle, Ethiopia">
+</datalist>
+
+          <button class="search-button" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="content">
+        <div class="toolbar">
+          <button
+            class="unit-button"
+            id="unitButton"
+            type="button"
+            onclick="toggleUnits()"
+          >
+            Show °F
+          </button>
+        </div>
+
+        <div id="result" aria-live="polite">
+          <div class="empty-state">
+            <div>
+              <span class="empty-icon" aria-hidden="true">🌤️</span>
+              Search for a city to see its weather.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  let useFahrenheit = false;
+  let lastWeatherData = null;
+
+  function convertTemperature(celsius) {
+    if (useFahrenheit) {
+      return `${(celsius * 9 / 5 + 32).toFixed(1)}°F`;
+    }
+    return `${celsius}°C`;
+  }
+
+function convertWindSpeed(kilometersPerHour) {
+  if (useFahrenheit) {
+    return `${(kilometersPerHour * 0.621371).toFixed(1)} mph`;
+  }
+  return `${kilometersPerHour} km/h`;
+}
+
+  function getWeatherIcon(code) {
+    if (code === 0) return "☀️";
+    if (code <= 3) return "🌤️";
+    if (code === 45 || code === 48) return "🌫️";
+    if (code >= 51 && code <= 67) return "🌧️";
+    if (code >= 71 && code <= 77) return "❄️";
+    if (code >= 80 && code <= 82) return "🌦️";
+    if (code === 85 || code === 86) return "🌨️";
+    if (code >= 95) return "⛈️";
+    return "🌥️";
+  }
+
+
+  async function searchWeather() {
+    const city = document.getElementById("city").value.trim();
+    const result = document.getElementById("result");
+
+    if (!city) {
+      result.innerHTML = '<div class="message">Please enter a city name.</div>';
+      return;
+    }
+
+    result.innerHTML = '<div class="message">Getting the latest weather…</div>';
+
+    try {
+      const response = await fetch(`/weather/${encodeURIComponent(city)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        result.innerHTML =
+          `<div class="message">${data.detail || "Could not find that city."}</div>`;
+        return;
+      }
+
+      if (!data.forecast || !data.forecast.weather_code) {
+        result.innerHTML =
+          '<div class="message">Forecast weather codes are missing. Check the daily settings in main.py.</div>';
+        return;
+      }
+
+      lastWeatherData = data;
+      showWeather(data);
+    } catch (error) {
+      result.innerHTML =
+        '<div class="message">Could not connect to the weather app. Check that the server is running.</div>';
+    }
+  }
+
+function getWeatherDescription(code) {
+  if (code === 0) return "Clear sky";
+  if (code <= 3) return "Partly cloudy";
+  if (code === 45 || code === 48) return "Foggy";
+  if (code >= 51 && code <= 57) return "Drizzle";
+  if (code >= 61 && code <= 67) return "Rain";
+  if (code >= 71 && code <= 77) return "Snow";
+  if (code >= 80 && code <= 82) return "Rain showers";
+  if (code === 85 || code === 86) return "Snow showers";
+  if (code >= 95) return "Thunderstorm";
+  return "Changing conditions";
+}
+
+  function showWeather(data) {
+    const forecastDays = data.forecast.time.map((date, index) => {
+      const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(
+        undefined,
+        { weekday: "short", month: "short", day: "numeric" }
+      );
+
+      const icon = getWeatherIcon(data.forecast.weather_code[index]);
+
+      return `
+        <article class="forecast-day">
+          <p class="forecast-date">${dateLabel}</p>
+          <div class="forecast-icon" aria-hidden="true">${icon}</div>
+          <p class="forecast-high">
+            ${convertTemperature(data.forecast.temperature_2m_max[index])}
+          </p>
+          <p class="forecast-low">
+            ${convertTemperature(data.forecast.temperature_2m_min[index])}
+          </p>
+          <p class="forecast-low">
+  Rain chance: ${data.forecast.precipitation_probability_max[index]}%
+</p>
+        </article>
+      `;
+    }).join("");
+
+    document.getElementById("result").innerHTML = `
+      <div class="weather-heading">
+        <div>
+          <h2>${data.city}, ${data.country || ""}</h2>
+          <p>Current conditions</p>
+        </div>
+       <span class="weather-icon" aria-hidden="true">
+  ${getWeatherIcon(data.weather.weather_code)}
+</span>
+      </div>
+
+      <section class="current-card">
+        <div>
+          <p class="current-label">Current temperature</p>
+          <p class="current-temperature">
+            ${convertTemperature(data.weather.temperature_2m)}
+          </p>
+          <p class="detail-label">
+  ${getWeatherDescription(data.weather.weather_code)}
+</p>
+        </div>
+        <span class="weather-icon" aria-hidden="true">🌡️</span>
+      </section>
+
+      <div class="details">
+        <article class="detail-card">
+          <p class="detail-label">Humidity</p>
+          <p class="detail-value">${data.weather.relative_humidity_2m}%</p>
+        </article>
+        <article class="detail-card">
+          <p class="detail-label">Wind speed</p>
+         <p class="detail-value">${convertWindSpeed(data.weather.wind_speed_10m)}</p>
+        </article>
+      </div>
+
+      <h3 class="forecast-title">5-Day Forecast</h3>
+      <div class="forecast-list">${forecastDays}</div>
+    `;
+  }
+
+  function toggleUnits() {
+    useFahrenheit = !useFahrenheit;
+
+    document.getElementById("unitButton").textContent =
+      useFahrenheit ? "Show °C" : "Show °F";
+
+    if (lastWeatherData) {
+      showWeather(lastWeatherData);
+    }
+  }
+</script>
+</body>
+</html>
